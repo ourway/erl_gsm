@@ -6,16 +6,32 @@
 %%% @end
 %%% Created : 06. Oct 2018 2:16 PM
 %%%-------------------------------------------------------------------
--module(bin_to_hex).
+-module(hex).
 
 -compile([native, {hipe, [o3]}]).
 
--export([bin_to_hex/1]).
+-export([bin_to_hex/1,hexstr_to_bin/1]).
 
 bin_to_hex(B) when is_binary(B) ->
   bin_to_hex(B, <<>>).
 
 -define(H(X), (hex(X)):16).
+
+
+-spec hexstr_to_bin(list())->binary().
+hexstr_to_bin(S) ->
+  hexstr_to_bin(S, []).
+
+-spec hexstr_to_bin(list(),list())->binary().
+hexstr_to_bin([], Acc) ->
+  list_to_binary(lists:reverse(Acc));
+hexstr_to_bin([X,Y|T], Acc) ->
+  {ok, [V], []} = io_lib:fread("~16u", [X,Y]),
+  hexstr_to_bin(T, [V | Acc]);
+hexstr_to_bin([X|T], Acc) ->
+  {ok, [V], []} = io_lib:fread("~16u", lists:flatten([X,"0"])),
+  hexstr_to_bin(T, [V | Acc]).
+
 
 bin_to_hex(<<>>, Acc) -> Acc;
 bin_to_hex(Bin, Acc) when byte_size(Bin) band 7 =:= 0 ->
